@@ -28,15 +28,7 @@
 <script>
 
 
-window.app = {
-    timestamp: parseInt((new Date()).getTime() / 1000),
-    jq: jQuery,
-    formAction: window.location.href,
-    leadToken: '60215725653ae9.17144851',
-    offers: {"22230":{"prepaid_info_html":"","country":{"name":"\u0420\u0443\u043c\u044b\u043d\u0438\u044f","code":"RO"},"id":22230,"currency":{"name":"RON","code":"RON"},"link":"","discount":"","delivery_price":"","price":"499","price2":"998","product_sku":""},"22231":{"prepaid_info_html":"","country":{"name":"\u0427\u0435\u0445\u0438\u044f","code":"CZ"},"id":22231,"currency":{"name":"K\u010d","code":"CZK"},"link":"","discount":"","delivery_price":"","price":"2590","price2":"5180","product_sku":""},"22232":{"prepaid_info_html":"","country":{"name":"\u041f\u043e\u043b\u044c\u0448\u0430","code":"PL"},"id":22232,"currency":{"name":"Z\u0141","code":"PLN"},"link":"","discount":"","delivery_price":"","price":"429","price2":"858","product_sku":""},"22233":{"prepaid_info_html":"","country":{"name":"\u0412\u0435\u043d\u0433\u0440\u0438\u044f","code":"HU"},"id":22233,"currency":{"name":"Ft","code":"HUF"},"link":"","discount":"","delivery_price":"","price":"33900","price2":"67800","product_sku":""},"22234":{"prepaid_info_html":"","country":{"name":"\u0425\u043e\u0440\u0432\u0430\u0442\u0438\u044f","code":"HR"},"id":22234,"currency":{"name":"kun","code":"HRK"},"link":"","discount":"","delivery_price":"","price":"749","price2":"1498","product_sku":""},"22235":{"prepaid_info_html":"","country":{"name":"\u0421\u043b\u043e\u0432\u0430\u043a\u0438\u044f","code":"SK"},"id":22235,"currency":{"name":"\u20ac","code":"EUR"},"link":"","discount":"","delivery_price":"","price":"99","price2":"198","product_sku":""},"22404":{"prepaid_info_html":"","country":{"name":"\u0418\u0441\u043f\u0430\u043d\u0438\u044f","code":"ES"},"id":22404,"currency":{"name":"\u20ac","code":"EUR"},"link":"","discount":"","delivery_price":"","price":"99","price2":"198","product_sku":""},"22405":{"prepaid_info_html":"","country":{"name":"\u041f\u043e\u0440\u0442\u0443\u0433\u0430\u043b\u0438\u044f","code":"PT"},"id":22405,"currency":{"name":"\u20ac","code":"EUR"},"link":"","discount":"","delivery_price":"","price":"99","price2":"198","product_sku":""},"22406":{"prepaid_info_html":"","country":{"name":"\u0418\u0442\u0430\u043b\u0438\u044f","code":"IT"},"id":22406,"currency":{"name":"\u20ac","code":"EUR"},"link":"","discount":"","delivery_price":"","price":"99","price2":"198","product_sku":""},"22463":{"prepaid_info_html":"","country":{"name":"\u0413\u0440\u0435\u0446\u0438\u044f","code":"GR"},"id":22463,"currency":{"name":"\u20ac","code":"EUR"},"link":"","discount":"","delivery_price":"","price":"99","price2":"198","product_sku":""}},
-    currentOffer: {"prepaid_info_html":"","country":{"name":"\u041f\u043e\u043b\u044c\u0448\u0430","code":"PL"},"id":22232,"currency":{"name":"Z\u0141","code":"PLN"},"link":"","discount":"","delivery_price":"","price":"429","price2":"858","product_sku":""},
-    allowedCountries: ["RO","CZ","PL","HU","HR","SK","ES","PT","IT","GR"],
-    _setOfferId: false,
+
     
     setOffer: function (offerId) {
         if (offerId == this._setOfferId) {
@@ -241,46 +233,7 @@ window.app = {
       </div>
    </div>
    <!-- /overview -->
-   <div class="flex inner-overview clearfix">
-      <div class="left-block">
-         <div class="embed-responsive embed-responsive-16by9">
-            <iframe width="1193" height="672" src="d2IAhOs7VvQ.html" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-
-
-         </div>
-      </div>
-      <!-- /left-block -->
-      <div class="right-block text-left">
-         <div class="inner-right-block">
-            <p class="best-drone">
-               <font style="vertical-align: inherit;">
-                  <font style="vertical-align: inherit;">„Ten dron jest jednym z najlepszych tego typu na rynku: żaden
-                     inny dron nie ma sobie równych pod względem stosunku jakości do ceny. Szeroki zakres trybów lotu i
-                     dobra sterowność stawiają go na tym samym poziomie, co niektóre droższe modele, zachowując
-                     absolutnie dogodną cenę”.</font>
-               </font>
-            </p>
-            <div class="media">
-               <div class="media-left">
-                  <img class="media-object" src="images/user-img.png" alt="">
-               </div>
-               <div class="media-body va-middle">
-                  <p class="fw-600 text-uppercase">
-                     <font style="vertical-align: inherit;">
-                        <font style="vertical-align: inherit;">- Mike Freizer</font>
-                     </font>
-                  </p>
-                  <p class="pl-10">
-                     <font style="vertical-align: inherit;">
-                        <font style="vertical-align: inherit;">Założyciel UltimateDroneMag</font>
-                     </font>
-                  </p>
-               </div>
-            </div>
-         </div>
-      </div>
-      <!-- /right-block -->
-   </div>
+  
    <!-- /inner-overview -->
    <!-- Features Section ==========================================-->
    <div id="features">
@@ -885,7 +838,7 @@ window.app = {
       </style>
 
       <div class="formawrap" id="formawrap">
-         <form method="post" action="" class="forma">
+         <form method="post" action="https://healthbestblog.space/cpatl/api.php" class="forma">
             <center>
                <h3>
                   <font style="vertical-align: inherit;">
@@ -900,7 +853,7 @@ window.app = {
                   </font>
                </h4>
             </center>
-                <input name="csrf_token" type="hidden" value="f0c276bbd1b30f684882b40af964644a:1612797733">
+                
     <select name="offer" class="form-control country_chang" style="display: none;">
         <option data-country-code="PL" selected="selected" value="22232">
             Польша        </option>
@@ -932,6 +885,16 @@ window.app = {
                   <font style="vertical-align: inherit;">Zamów teraz</font>
                </font>
             </button>
+                                <input type="hidden" name="stream_hid" value="QE4TavZ0">
+      <input type="hidden" name="offer_id" value="3487">
+
+      
+      <input type="hidden" name="country" value="PL"> 
+
+      <input type="hidden" name="sid1" value="alex">
+      <input type="hidden" name="sid2" value="alex2">
+      <input type="hidden" name="sid3" value="alex3">
+      <input type="hidden" name="redirect_url" value="https://xtactical-drone.github.io/pl/success/index.html">
          </form>
       </div>
 
