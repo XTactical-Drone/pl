@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+
+<html class="translated-ltr">
+
+<head>
+
+<script src="js/jquery.min.js"></script>
+
+    <script>
+    function set_validator_errors(){
+        orderValidator.errorTitle = 'Proszę poprawić następujące błędy'; 
+
+        orderValidator.errorNameField = 'Imię'; 
+        orderValidator.errorNameMess = 'Wpisz swoje imię'; 
+        
+        orderValidator.errorPhoneField = 'Telefon'; 
+        orderValidator.errorPhoneMess = 'Wpisz poprawny numer telefonu'; 
+        
+        orderValidator.errorAddress = 'Wpisz poprawny adres'; 
+        orderValidator.errorRequired = 'Pole wymagane'; 
+        orderValidator.errorMaxLength = 'poprawny maksymalny znak {1}'; 
+        orderValidator.errorMinLength = 'prawidłowy znak minimum {1}'; 
+        orderValidator.errorEmailField = 'E-mail';
+        orderValidator.errorEmail = 'podano nieprawidłowy adres e-mail';
+        }
+    </script>
+    
+<script>
+
+
+window.app = {
+    timestamp: parseInt((new Date()).getTime() / 1000),
+    jq: jQuery,
+    formAction: window.location.href,
+    leadToken: '60215725653ae9.17144851',
+    offers: {"22230":{"prepaid_info_html":"","country":{"name":"\u0420\u0443\u043c\u044b\u043d\u0438\u044f","code":"RO"},"id":22230,"currency":{"name":"RON","code":"RON"},"link":"","discount":"","delivery_price":"","price":"499","price2":"998","product_sku":""},"22231":{"prepaid_info_html":"","country":{"name":"\u0427\u0435\u0445\u0438\u044f","code":"CZ"},"id":22231,"currency":{"name":"K\u010d","code":"CZK"},"link":"","discount":"","delivery_price":"","price":"2590","price2":"5180","product_sku":""},"22232":{"prepaid_info_html":"","country":{"name":"\u041f\u043e\u043b\u044c\u0448\u0430","code":"PL"},"id":22232,"currency":{"name":"Z\u0141","code":"PLN"},"link":"","discount":"","delivery_price":"","price":"429","price2":"858","product_sku":""},"22233":{"prepaid_info_html":"","country":{"name":"\u0412\u0435\u043d\u0433\u0440\u0438\u044f","code":"HU"},"id":22233,"currency":{"name":"Ft","code":"HUF"},"link":"","discount":"","delivery_price":"","price":"33900","price2":"67800","product_sku":""},"22234":{"prepaid_info_html":"","country":{"name":"\u0425\u043e\u0440\u0432\u0430\u0442\u0438\u044f","code":"HR"},"id":22234,"currency":{"name":"kun","code":"HRK"},"link":"","discount":"","delivery_price":"","price":"749","price2":"1498","product_sku":""},"22235":{"prepaid_info_html":"","country":{"name":"\u0421\u043b\u043e\u0432\u0430\u043a\u0438\u044f","code":"SK"},"id":22235,"currency":{"name":"\u20ac","code":"EUR"},"link":"","discount":"","delivery_price":"","price":"99","price2":"198","product_sku":""},"22404":{"prepaid_info_html":"","country":{"name":"\u0418\u0441\u043f\u0430\u043d\u0438\u044f","code":"ES"},"id":22404,"currency":{"name":"\u20ac","code":"EUR"},"link":"","discount":"","delivery_price":"","price":"99","price2":"198","product_sku":""},"22405":{"prepaid_info_html":"","country":{"name":"\u041f\u043e\u0440\u0442\u0443\u0433\u0430\u043b\u0438\u044f","code":"PT"},"id":22405,"currency":{"name":"\u20ac","code":"EUR"},"link":"","discount":"","delivery_price":"","price":"99","price2":"198","product_sku":""},"22406":{"prepaid_info_html":"","country":{"name":"\u0418\u0442\u0430\u043b\u0438\u044f","code":"IT"},"id":22406,"currency":{"name":"\u20ac","code":"EUR"},"link":"","discount":"","delivery_price":"","price":"99","price2":"198","product_sku":""},"22463":{"prepaid_info_html":"","country":{"name":"\u0413\u0440\u0435\u0446\u0438\u044f","code":"GR"},"id":22463,"currency":{"name":"\u20ac","code":"EUR"},"link":"","discount":"","delivery_price":"","price":"99","price2":"198","product_sku":""}},
+    currentOffer: {"prepaid_info_html":"","country":{"name":"\u041f\u043e\u043b\u044c\u0448\u0430","code":"PL"},"id":22232,"currency":{"name":"Z\u0141","code":"PLN"},"link":"","discount":"","delivery_price":"","price":"429","price2":"858","product_sku":""},
+    allowedCountries: ["RO","CZ","PL","HU","HR","SK","ES","PT","IT","GR"],
+    _setOfferId: false,
+    
+    setOffer: function (offerId) {
+        if (offerId == this._setOfferId) {
+            return ;
+        }
+        this._setOfferId = offerId;
+        if (offerId) {
+            var offer = app.offers[offerId];
+            var previousOffer = app.currentOffer;
+            app.currentOffer = offer;
+            var event = this.jq.Event("offerchange");
+            event.previousOffer = previousOffer;
+            event.currentOffer = app.currentOffer;
+            this.jq(document).trigger(event);
+            this.updatePage(offer);
+        } else {
+            $('input[name=country]').val('');
+        }
+    },
+    
+    updatePage: function(offer) {
+        $('x-newprice').html(offer.price);
+        $('x-oldprice').html(offer.price2);
+        $('x-currency').html(offer.currency.name);
+        $('input[name=offer], select[name=offer]').val(offer.id);
+        $('input[name=country]').val(offer.country.code);
+    },
+
+    blockForm: function() {
+        // Блокируем кнопки при отправке формы
+        $('input[type=submit]', $(this)).prop( 'disabled', true ).attr( 'disabled', true );
+        $('button', $(this)).prop( 'disabled', true ).attr( 'disabled', true );
+        app.incompleteOrder.lock = true;
+        clearTimeout(app.incompleteOrder.timer);
+    },
+
+    unblockForm: function() {
+        $('input[type=submit]', $(this)).prop( 'disabled', false ).attr( 'disabled', false );
+        $('button[type=submit]', $(this)).prop( 'disabled', false ).attr( 'disabled', false );
+        app.incompleteOrder.lock = false;
+        clearTimeout(app.incompleteOrder.timer);
+    }
+
+};
+
+
+</script><script src="js/form.validate.js"></script>
+<script src="js/form.incomplete.js"></script>
+<script src="js/main2.js"></script>
+
+
+
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+
+
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <meta property="og:image" content="images/img-to-share.png">
+   <title>XTactical Drone</title>
+   <link href="css/bootstrap.min.css" rel="stylesheet">
+   <link href="css/fontawesome-all.min.css" rel="stylesheet">
+   <link href="css/style.css" rel="stylesheet">
+   <link href="css/stylesheet.css" rel="stylesheet">
+   <!-- icons -->
+   <link rel="apple-touch-icon" sizes="57x57" href="images/apple-icon-57x57.png">
+   <link rel="apple-touch-icon" sizes="60x60" href="images/apple-icon-60x60.png">
+   <link rel="apple-touch-icon" sizes="72x72" href="images/apple-icon-72x72.png">
+   <link rel="apple-touch-icon" sizes="76x76" href="images/apple-icon-76x76.png">
+   <link rel="apple-touch-icon" sizes="114x114" href="images/apple-icon-114x114.png">
+   <link rel="apple-touch-icon" sizes="120x120" href="images/apple-icon-120x120.png">
+   <link rel="apple-touch-icon" sizes="144x144" href="images/apple-icon-144x144.png">
+   <link rel="apple-touch-icon" sizes="152x152" href="images/apple-icon-152x152.png">
+   <link rel="apple-touch-icon" sizes="180x180" href="images/apple-icon-180x180.png">
+   <link rel="icon" type="image/png" sizes="192x192" href="images/android-icon-192x192.png">
+   <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
+   <link rel="icon" type="image/png" sizes="96x96" href="images/favicon-96x96.png">
+   <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
+   <link rel="manifest" href="./icons/manifest.json">
+   <meta name="msapplication-TileColor" content="#ffffff">
+   <meta name="msapplication-TileImage" content="icons/ms-icon-144x144.png">
+   <meta name="theme-color" content="#ffffff">
+   <!-- /icons -->
+   <link type="text/css" rel="stylesheet" charset="UTF-8" href="css/translateelement.css">
+</head>
+
+<body>
+   <nav id="tf-menu" class="navbar navbar-default navbar-fixed-top on">
+      <div class="container">
+         <!-- Brand and toggle get grouped for better mobile display -->
+         <div class="navbar-header">
+
+            <img class="img-logo" src="images/logo.png" alt="">
+         </div>
+
+         <!-- /.navbar-collapse -->
+      </div>
+      <!-- /.container-fluid -->
+   </nav>
+   <div id="tf-home" class="text-center">
+      <div class="overlay">
+         <div class="container">
+            <div class="content">
+               <div class="">
+                  <h1 class="h1 text-uppercase color-white mb-5">
+                     <font style="vertical-align: inherit;">
+                        <font style="vertical-align: inherit;"> TEN REWELACYJNY DRON NAGRRA NAJLEPSZE FILMY W TWOIM
+                           ŻYCIU! </font>
+                     </font><span class="color-yellow">
+                        <font style="vertical-align: inherit;">
+                           <font style="vertical-align: inherit;">DRONE</font>
+                        </font>
+                     </span>
+                     <font style="vertical-align: inherit;">
+                        <font style="vertical-align: inherit;"> XTACTICAL</font>
+                     </font>
+                  </h1>
+                  <h3 class="h3 text-uppercase color-white fw-300 mt-0">
+                     <font style="vertical-align: inherit;">
+                        <font style="vertical-align: inherit;">ZACHOWAJ PAMIĘĆ O SWOICH PRZYGODACH </font>
+                     </font>
+                  </h3>
+                  <p class="color-light-gray container-min mt-25 mb-35">
+                     <font style="vertical-align: inherit;">
+                        <font style="vertical-align: inherit;">XTactical Drone to precyzyjny dron zaprojektowany do
+                           robienia doskonałych filmów podczas lotu. </font>
+                        <font style="vertical-align: inherit;">Lekka, składana konstrukcja sprawia, że ​​jest to
+                           niezbędny element każdej podróży!</font>
+                     </font>
+                  </p>
+                  <a href="#formawrap" class="btn order_button btn-order btn-custom btn_yellow text-uppercase mb-10">Zamów teraz </a>
+
+               </div>
+               <img class="img-responsive mt-40" src="images/drone.png" alt="">
+               <ul class="featured_list mt-20">
+                  <li class="featured_block">
+                     <img class="img-responsive" src="images/big_logo.png" alt="">
+                  </li>
+               </ul>
+            </div>
+            <!-- /content -->
+         </div>
+      </div>
+   </div>
+   <!-- /Home Section -->
+   <div id="overview" class="text-center">
+      <div class="container">
+         <div class="wrapper-info">
+            <p class="fs-20 color-white mb-35">
+               <font style="vertical-align: inherit;">
+                  <font style="vertical-align: inherit;">Cud inżynierii i designu, Drone XTactical został
+                     zaprojektowany, aby być z Tobą wszędzie tam, gdzie zabierze Cię podróż. </font>
+                  <font style="vertical-align: inherit;">Dziedzicząc najlepsze cechy serii XTactical, ten składany,
+                     ultraprzenośny dron ma najlepsze parametry i funkcjonalność, aby zapewnić Ci niesamowite wrażenia.
+                  </font>
+               </font>
+            </p>
+            <ul class="marvel_list flex">
+               <li class="marvel_block">
+                  <div class="marvel_content text-center">
+                     <img class="img-responsive mb-20" src="images/marvel-img-1.png" alt="">
+                     <p class="fs-20 color-white">
+                        <font style="vertical-align: inherit;">
+                           <font style="vertical-align: inherit;">Kompaktowy</font>
+                        </font>
+                     </p>
+                  </div>
+               </li>
+               <li class="marvel_block">
+                  <div class="marvel_content text-center">
+                     <img class="img-responsive mb-20" src="images/marvel-img-2.png" alt="">
+                     <p class="fs-20 color-white">
+                        <font style="vertical-align: inherit;">
+                           <font style="vertical-align: inherit;">Lekki</font>
+                        </font>
+                     </p>
+                  </div>
+               </li>
+               <li class="marvel_block">
+                  <div class="marvel_content text-center">
+                     <img class="img-responsive mb-20" src="images/marvel-img-3.png" alt="">
+                     <p class="fs-20 color-white">
+                        <font style="vertical-align: inherit;">
+                           <font style="vertical-align: inherit;">Trwały</font>
+                        </font>
+                     </p>
+                  </div>
+               </li>
+               <li class="marvel_block">
+                  <div class="marvel_content background-none text-center">
+                     <img class="img-responsive mb-20" src="images/marvel-img-4.png" alt="">
+                     <p class="fs-20 color-white">
+                        <font style="vertical-align: inherit;">
+                           <font style="vertical-align: inherit;">Szybki</font>
+                        </font>
+                     </p>
+                  </div>
+               </li>
+            </ul>
+         </div>
+         <!-- /wrapper-info -->
+      </div>
+   </div>
+   <!-- /overview -->
+   <div class="flex inner-overview clearfix">
+      <div class="left-block">
+         <div class="embed-responsive embed-responsive-16by9">
+            <iframe width="1193" height="672" src="d2IAhOs7VvQ.html" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+
+         </div>
+      </div>
+      <!-- /left-block -->
+      <div class="right-block text-left">
+         <div class="inner-right-block">
+            <p class="best-drone">
+               <font style="vertical-align: inherit;">
+                  <font style="vertical-align: inherit;">„Ten dron jest jednym z najlepszych tego typu na rynku: żaden
+                     inny dron nie ma sobie równych pod względem stosunku jakości do ceny. Szeroki zakres trybów lotu i
+                     dobra sterowność stawiają go na tym samym poziomie, co niektóre droższe modele, zachowując
+                     absolutnie dogodną cenę”.</font>
+               </font>
+            </p>
+            <div class="media">
+               <div class="media-left">
+                  <img class="media-object" src="images/user-img.png" alt="">
+               </div>
+               <div class="media-body va-middle">
+                  <p class="fw-600 text-uppercase">
+                     <font style="vertical-align: inherit;">
+                        <font style="vertical-align: inherit;">- Mike Freizer</font>
+                     </font>
+                  </p>
+                  <p class="pl-10">
+                     <font style="vertical-align: inherit;">
+                        <font style="vertical-align: inherit;">Założyciel UltimateDroneMag</font>
+                     </font>
+                  </p>
+               </div>
+            </div>
+         </div>
+      </div>
+      <!-- /right-block -->
+   </div>
+   <!-- /inner-overview -->
+   <!-- Features Section ==========================================-->
+   <div id="features">
+      <div class="container">
+         <h1 class="h1 text-center text-uppercase color-white mb-50">
+            <font style="vertical-align: inherit;">
+               <font style="vertical-align: inherit;">CZYM JEST XTACTICAL DRON?</font>
+            </font>
+         </h1>
+         <div class="row">
+            <div class="col-sm-6 col-md-4">
+               <div class="what-is-block mb-50">
+                  <div class="media">
+                     <div class="media-left pr-30">
+                        <img class="media-object" src="images/what-is-img1.png" alt="">
+                     </div>
+                     <div class="media-body">
+                        <p class="fs-20 color-white fw-500 mb-20">
+                           <font style="vertical-align: inherit;">
+                              <font style="vertical-align: inherit;">Składany dron</font>
+                           </font>
+                        </p>
+                        <p class="color-light-gray">
+                           <font style="vertical-align: inherit;">
+                              <font style="vertical-align: inherit;">Śmigła składają się do wewnątrz, dzięki czemu dron
+                                 można łatwiej transportować i jest lepiej chroniony podczas transportu.</font>
+                           </font>
+                        </p>
+                     </div>
+                  </div>
+               </div>
+               <!-- /what-is-block -->
+               <div class="what-is-block mb-50">
+                  <div class="media">
+                     <div class="media-left pr-30">
+                        <img class="media-object" src="images/what-is-img2.png" alt="">
+                     </div>
+                     <div class="media-body">
+                        <p class="fs-20 color-white fw-500 mb-20">
+                           <font style="vertical-align: inherit;">
+                              <font style="vertical-align: inherit;">Zdjęcia i filmy Full HD</font>
+                           </font>
+                        </p>
+                        <p class="color-light-gray">
+                           <font style="vertical-align: inherit;">
+                              <font style="vertical-align: inherit;">Nagrywaj filmy w wysokiej rozdzielczości i rób
+                                 zdjęcia w rozdzielczości do 1080P</font>
+                           </font>
+                        </p>
+                     </div>
+                  </div>
+               </div>
+               <!-- /what-is-block -->
+               <div class="what-is-block mb-50">
+                  <div class="media">
+                     <div class="media-left pr-30">
+                        <img class="media-object" src="images/what-is-img3.png" alt="">
+                     </div>
+                     <div class="media-body">
+                        <p class="fs-20 color-white fw-500 mb-20">
+                           <font style="vertical-align: inherit;">
+                              <font style="vertical-align: inherit;">Dłuższy czas lotu</font>
+                           </font>
+                        </p>
+                        <p class="color-light-gray">
+                           <font style="vertical-align: inherit;">
+                              <font style="vertical-align: inherit;">Lataj i rób zdjęcia do 30 minut bez dotykania ziemi
+                                 i wymiany baterii.</font>
+                           </font>
+                        </p>
+                     </div>
+                  </div>
+               </div>
+               <!-- /what-is-block -->
+            </div>
+            <div class="col-sm-6 col-md-4 col-md-offset-4">
+               <div class="what-is-block mb-50">
+                  <div class="media">
+                     <div class="media-left pr-30">
+                        <img class="media-object" src="images/what-is-img4.png" alt="">
+                     </div>
+                     <div class="media-body">
+                        <p class="fs-20 color-white fw-500 mb-20">
+                           <font style="vertical-align: inherit;">
+                              <font style="vertical-align: inherit;">Czujnik wykrywania przeszkód</font>
+                           </font>
+                        </p>
+                        <p class="color-light-gray">
+                           <font style="vertical-align: inherit;">
+                              <font style="vertical-align: inherit;">Czujniki wykrywają ziemię i inne przeszkody i
+                                 automatycznie zmieniają kierunek lotu, aby uniknąć kolizji.</font>
+                           </font>
+                        </p>
+                     </div>
+                  </div>
+               </div>
+               <!-- /what-is-block -->
+               <div class="what-is-block mb-50">
+                  <div class="media">
+                     <div class="media-left pr-30">
+                        <img class="media-object" src="images/what-is-img5.png" alt="">
+                     </div>
+                     <div class="media-body">
+                        <p class="fs-20 color-white fw-500 mb-20">
+                           <font style="vertical-align: inherit;">
+                              <font style="vertical-align: inherit;">Wideo na żywo</font>
+                           </font>
+                        </p>
+                        <p class="color-light-gray">
+                           <font style="vertical-align: inherit;">
+                              <font style="vertical-align: inherit;">Uzyskaj dostęp do kamery drona w czasie
+                                 rzeczywistym i monitoruj swoje terytorium.</font>
+                           </font>
+                        </p>
+                     </div>
+                  </div>
+               </div>
+               <!-- /what-is-block -->
+               <div class="what-is-block mb-50">
+                  <div class="media">
+                     <div class="media-left pr-30">
+                        <img class="media-object" src="images/what-is-img6.png" alt="">
+                     </div>
+                     <div class="media-body">
+                        <p class="fs-20 color-white fw-500 mb-20">
+                           <font style="vertical-align: inherit;">
+                              <font style="vertical-align: inherit;">Zdjęcia panoramiczne</font>
+                           </font>
+                        </p>
+                        <p class="color-light-gray">
+                           <font style="vertical-align: inherit;">
+                              <font style="vertical-align: inherit;">Rób 360-stopniowe zdjęcia z powietrza za
+                                 naciśnięciem jednego przycisku</font>
+                           </font>
+                        </p>
+                     </div>
+                  </div>
+               </div>
+               <!-- /what-is-block -->
+            </div>
+         </div>
+      </div>
+   </div>
+   <!-- /Features Section -->
+   <!-- Reviews Section ==========================================-->
+   <div id="reviews">
+      <div class="reviews-1">
+         <div class="container">
+            <div class="row">
+               <div class="col-sm-6">
+                  <h1 class="h1 text-uppercase mb-30 mt-0">
+                     <font style="vertical-align: inherit;">
+                        <font style="vertical-align: inherit;">LATAJ SZYBCIEJ I PRZEZ DŁUŻSZY CZAS</font>
+                     </font>
+                  </h1>
+                  <h4 class="h4 mb-50 lh-13">
+                     <font style="vertical-align: inherit;">
+                        <font style="vertical-align: inherit;">XTactical Drone to jeden z najszybszych dronów tej
+                           wielkości. Można sterować tym dronem z odległości do 3000 metrów.</font>
+                     </font>
+                  </h4>
+                  <div class="wrapper-stars">
+                     <img src="images/star.png" alt="">
+                     <img src="images/star.png" alt="">
+                     <img src="images/star.png" alt="">
+                     <img src="images/star.png" alt="">
+                     <img src="images/star.png" alt="">
+                  </div>
+                  <div class="evaluation"><span>
+                        <font style="vertical-align: inherit;">
+                           <font style="vertical-align: inherit;">5</font>
+                        </font>
+                     </span>
+                     <font style="vertical-align: inherit;">
+                        <font style="vertical-align: inherit;"> / </font>
+                     </font><span>
+                        <font style="vertical-align: inherit;">
+                           <font style="vertical-align: inherit;">5</font>
+                        </font>
+                     </span>
+                  </div>
+                  <p class="mt-20 mb-20 lh-16">
+                     <font style="vertical-align: inherit;">
+                        <font style="vertical-align: inherit;">„Kilkakrotnie testowaliśmy drona XTactical. Jesteśmy
+                           przekonani o jakości produktu. Ten dron jest wart swojej ceny. </font>
+                        <font style="vertical-align: inherit;">Nie mogłem uwierzyć, jak szybko lata i byłem zdumiony,
+                           jak długo nie traci zasięgu."</font>
+                     </font>
+                  </p>
+                  <p class="fw-600 text-uppercase">
+                     <font style="vertical-align: inherit;">
+                        <font style="vertical-align: inherit;">- </font>
+                     </font><span class="pl-10">
+                        <font style="vertical-align: inherit;">
+                           <font style="vertical-align: inherit;">Jack Johnson</font>
+                        </font>
+                     </span>
+                  </p>
+                  <img src="images/varif.png" alt=""><span class="verif">
+                     <font style="vertical-align: inherit;">
+                        <font style="vertical-align: inherit;">Zweryfikowany ekspert</font>
+                     </font>
+                  </span>
+               </div>
+               <div class="col-sm-6 text-center">
+                  <img class="img-responsive mt-10" src="images/reviews-img-1.png" alt="">
+               </div>
+            </div>
+         </div>
+      </div>
+      <!-- /reviews-1 -->
+      <div class="reviews-2">
+         <div class="container">
+            <div class="row">
+               <div class="col-sm-6 text-center">
+                  <img class="img-responsive text-center mt-10" src="images/reviews-img-2.png" alt="">
+               </div>
+               <div class="col-sm-6">
+                  <h1 class="h1 text-uppercase mb-30 color-white mt-0">
+                     <font style="vertical-align: inherit;">
+                        <font style="vertical-align: inherit;">PROSTE STEROWANIE</font>
+                     </font>
+                  </h1>
+                  <h4 class="h4 mb-50 color-light-gray">
+                     <font style="vertical-align: inherit;">
+                        <font style="vertical-align: inherit;">XTactical posiada wszystkie niezbędne funkcje, aby
+                           zadowolić profesjonalistów, ale jest niezwykle łatwy w obsłudze i sterowaniu, nawet dla osób
+                           początkujących.</font>
+                     </font>
+                  </h4>
+                  <div class="wrapper-stars">
+                     <img src="images/star.png" alt="">
+                     <img src="images/star.png" alt="">
+                     <img src="images/star.png" alt="">
+                     <img src="images/star.png" alt="">
+                     <img src="images/star.png" alt="">
+                  </div>
+                  <div class="evaluation"><span>
+                        <font style="vertical-align: inherit;">
+                           <font style="vertical-align: inherit;">5</font>
+                        </font>
+                     </span>
+                     <font style="vertical-align: inherit;">
+                        <font style="vertical-align: inherit;"> / </font>
+                     </font><span>
+                        <font style="vertical-align: inherit;">
+                           <font style="vertical-align: inherit;">5</font>
+                        </font>
+                     </span>
+                  </div>
+                  <p class="mt-20 mb-20 color-light-gray">
+                     <font style="vertical-align: inherit;">
+                        <font style="vertical-align: inherit;">"Zawsze jestem niezwykle ostrożny z moim sprzętem
+                           technicznym, ale ten dron jest tak prosty w użyciu i ma tak wiele funkcji antykolizyjnych, że
+                           wkładam go w ręce mojego 8-letniego syna po pokazaniu mu, jak go przenosić."</font>
+                     </font>
+                  </p>
+                  <p class="fw-600 text-uppercase">
+                     <font style="vertical-align: inherit;">
+                        <font style="vertical-align: inherit;">- </font>
+                     </font><span class="pl-10 color-light-gray">
+                        <font style="vertical-align: inherit;">
+                           <font style="vertical-align: inherit;">Fred Turner</font>
+                        </font>
+                     </span>
+                  </p>
+                  <p class="pl-20 mb-20 color-light-gray">
+                     <font style="vertical-align: inherit;">
+                        <font style="vertical-align: inherit;">Inżynier lotnictwa</font>
+                     </font>
+                  </p>
+                  <img src="images/varif.png" alt=""><span class="verif color-light-gray">
+                     <font style="vertical-align: inherit;">
+                        <font style="vertical-align: inherit;">Zweryfikowany ekspert</font>
+                     </font>
+                  </span>
+               </div>
+            </div>
+         </div>
+      </div>
+      <!-- /reviews-2 -->
+      <div class="reviews-3">
+         <div class="container">
+            <div class="row">
+               <div class="col-sm-6">
+                  <h1 class="h1 text-uppercase mb-30 mt-0">
+                     <font style="vertical-align: inherit;">
+                        <font style="vertical-align: inherit;">RÓB PROFESJONALNE ZDJĘCIA</font>
+                     </font>
+                  </h1>
+                  <h4 class="h4 mb-50">
+                     <font style="vertical-align: inherit;">
+                        <font style="vertical-align: inherit;">Drone XTactical jest wyposażony w zintegrowaną kamerę i
+                           posiada funkcje, takie jak ŚLEDZIENIE i "GO HOME"; </font>
+                        <font style="vertical-align: inherit;">więc po naciśnięciu przycisku nawet osoby o małych
+                           umiejętnościach technicznych mogą korzystać z profesjonalnego sprzętu.</font>
+                     </font>
+                  </h4>
+                  <div class="wrapper-stars">
+                     <img src="images/star.png" alt="">
+                     <img src="images/star.png" alt="">
+                     <img src="images/star.png" alt="">
+                     <img src="images/star.png" alt="">
+                     <img src="images/star.png" alt="">
+                  </div>
+                  <div class="evaluation"><span>
+                        <font style="vertical-align: inherit;">
+                           <font style="vertical-align: inherit;">5</font>
+                        </font>
+                     </span>
+                     <font style="vertical-align: inherit;">
+                        <font style="vertical-align: inherit;"> / </font>
+                     </font><span>
+                        <font style="vertical-align: inherit;">
+                           <font style="vertical-align: inherit;">5</font>
+                        </font>
+                     </span>
+                  </div>
+                  <p class="mt-20 mb-20 lh-16">
+                     <font style="vertical-align: inherit;">
+                        <font style="vertical-align: inherit;">"Ten dron sprawia, że ​​nagrywanie filmów jest bardzo
+                           proste, a wszystkie zaprogramowane tryby są świetną zabawą! </font>
+                        <font style="vertical-align: inherit;">Tworzenie własnych filmów, które wyglądają jak filmy
+                           akcji, jest bardzo interesujące, a stworzenie własnych treści zajmuje tylko kilka sekund."
+                        </font>
+                     </font>
+                  </p>
+                  <p class="fw-600 text-uppercase">
+                     <font style="vertical-align: inherit;">
+                        <font style="vertical-align: inherit;">- </font>
+                     </font><span class="pl-10">
+                        <font style="vertical-align: inherit;">
+                           <font style="vertical-align: inherit;">Jimmy Gonzalez</font>
+                        </font>
+                     </span>
+                  </p>
+                  <p class="pl-20 mb-20">
+                     <font style="vertical-align: inherit;">
+                        <font style="vertical-align: inherit;">FlightBaseGuide.net</font>
+                     </font>
+                  </p>
+                  <img src="images/varif.png" alt=""><span class="verif">
+                     <font style="vertical-align: inherit;">
+                        <font style="vertical-align: inherit;">Zweryfikowany ekspert</font>
+                     </font>
+                  </span>
+               </div>
+               <div class="col-sm-6 text-center">
+                  <img class="img-responsive mt-10" src="images/reviews-img-3.png" alt="">
+               </div>
+            </div>
+         </div>
+      </div>
+      <!-- /reviews-3 -->
+
+      <!-- /rated -->
+   </div>
+   <!-- /Reviews Section -->
+   <!-- section-products Section ==========================================-->
+
+   <!-- /section-products Section -->
+   <div class="real-exp text-center" style="padding-top: 0">
+      <div class="container">
+         <h1 class="h1 text-uppercase mb-40">
+            <font style="vertical-align: inherit;">
+               <font style="vertical-align: inherit;">PRAWDZIWY DRON WYPROJEKTOWANY PRZEZ PRAWDZIWYCH EKSPERTÓW</font>
+            </font>
+         </h1>
+         <div class="row">
+            <div class="flex">
+               <div class="col-sm-4 item-reviews">
+                  <div class="wrapper-real-img">
+                     <img class="img-responsive real-img mb-30" src="images/real-img-1.png" alt="">
+                     <p>
+                        <font style="vertical-align: inherit;">
+                           <font style="vertical-align: inherit;">Nie daj się zwieść jego rozmiarom; kompaktowy i mocny,
+                              można go porównać do większości urządzeń, które są dwa, trzy razy większe niż xtactical.
+                              Najnowsze technologie sprawiają, że ​​quadrocopter jest lekki i zaskakująco wytrzymały.
+                              Będzie w komplecie z częściami zamiennymi, na wszelki wypadek, ale jesteśmy pewni, że nie
+                              będą potrzebne!”</font>
+                        </font>
+                     </p>
+                  </div>
+               </div>
+               <div class="col-sm-4 item-reviews">
+                  <div class="wrapper-real-img">
+                     <img class="img-responsive real-img mb-30" src="images/real-img-2.png" alt="">
+                     <p>
+                        <font style="vertical-align: inherit;">
+                           <font style="vertical-align: inherit;">„Jakość produktu jest niesamowita w porównaniu z jego
+                              ceną. Dzięki XTactical jest teraz jasne, że obecnie można kupić drona o wysokiej
+                              wydajności za niewielką część ceny niektórych najlepszych modeli na rynku. Teraz ta
+                              technologia jest dostępna dla każdego i jestem z niej bardzo zadowolony!”</font>
+                        </font>
+                     </p>
+                  </div>
+               </div>
+               <div class="col-sm-4 item-reviews">
+                  <div class="wrapper-real-img border-none">
+                     <img class="img-responsive real-img mb-30" src="images/real-img-3.png" alt="">
+                     <p>
+                        <font style="vertical-align: inherit;">
+                           <font style="vertical-align: inherit;">„Zawsze staramy się o najlepszą metodą, aby nasi
+                              klienci mogli poznać nasze przygody W zeszłym roku miałem inne drony, ale do tej pory
+                              zawsze były zbyt skomplikowane, zbyt słabe i zbyt delikatne, aby je używać na codzień.
+                              Dzięki XTactical całkowicie zmieniliśmy sposób nagrywania wszystkich naszych podróż i
+                              obecnie nagrywamy profesjonalnej jakości filmy z dwukrotnie większą szybkością!”</font>
+                        </font>
+                     </p>
+                  </div>
+               </div>
+            </div>
+            <!-- /flex -->
+         </div>
+      </div>
+   </div>
+   <!-- /real-exp -->
+   <section id="order" class="grayMesh_light">
+
+      <div style="background: white">
+         <img src="images/l6.jpg" style="width: 100%;
+    max-width: 700px;
+    padding: 50px 15px;
+    display: block;
+    margin: auto;">
+         <div style="padding: 0 15px">
+            <p style="    padding: 15px;
+    border: 3px dotted #89cf2e;
+    border-radius: 20px;
+    font-size: 22px;
+    text-align: center;
+    max-width: 500px;
+    margin: auto;"><b>
+                  <font style="vertical-align: inherit;">
+                     <font style="vertical-align: inherit;">OFERTA 2020: </font>
+                  </font>
+               </b>
+               <font style="vertical-align: inherit;">
+                  <font style="vertical-align: inherit;"> Drone XTactical jest dostępny z darmową dostawą w Polsce przez
+                     ograniczony czas! </font>
+                  <font style="vertical-align: inherit;">Pospiesz się, oferta wkrótce wygaśnie!</font>
+               </font>
+            </p>
+         </div>
+      </div>
+      <style>
+         .forma {
+            max-width: 450px;
+            margin: 0 auto;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            line-height: 1.5;
+            color: #212529;
+            font-size: 16px;
+         }
+
+         .forma h3 {
+            font-size: 28px;
+            font-weight: bold;
+            margin: 0 0 12px 0;
+         }
+
+         .forma img {
+            max-width: 100%;
+            max-height: 80px;
+         }
+
+         .forma .form-group {
+            margin-bottom: 16px;
+         }
+
+         .forma label {
+            display: inline-block;
+            margin-bottom: 8px;
+         }
+
+         .forma .form-control {
+            display: block;
+            width: 100%;
+            padding: 6px 12px;
+            font-size: 16px;
+            line-height: 1.5;
+            color: #495057;
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+         }
+
+         .forma .form-control:focus {
+            color: #495057;
+            background-color: #fff;
+            border-color: #80bdff;
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25);
+         }
+
+         .forma .form-row {
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: flex;
+            -ms-flex-wrap: wrap;
+            flex-wrap: wrap;
+            margin-right: -5px;
+            margin-left: -5px;
+         }
+
+         .forma .form-row>.col,
+         .forma .form-row>[class*=col-] {
+            padding-right: 5px;
+            padding-left: 5px;
+         }
+
+         .forma .col-md-8 {
+            -webkit-box-flex: 0;
+            -ms-flex: 0 0 66.666667%;
+            flex: 0 0 66.666667%;
+            max-width: 66.666667%;
+         }
+
+         .forma .col-md-4 {
+            -webkit-box-flex: 0;
+            -ms-flex: 0 0 33.333333%;
+            flex: 0 0 33.333333%;
+            max-width: 33.333333%;
+         }
+
+         .forma *,
+         .forma::after,
+         .forma::before {
+            box-sizing: border-box;
+         }
+
+         .forma .col {
+            -ms-flex-preferred-size: 0;
+            flex-basis: 0;
+            -webkit-box-flex: 1;
+            -ms-flex-positive: 1;
+            flex-grow: 1;
+            max-width: 100%;
+            position: relative;
+            width: 100%;
+            min-height: 1px;
+         }
+
+         .forma span {
+            color: black;
+            padding: 4px 10px;
+            background: #ffc205;
+            font-weight: bold;
+            border-radius: 5px;
+         }
+
+         .forma span img {
+            height: 25px;
+            vertical-align: bottom;
+            padding-right: 3px;
+         }
+
+         .forma .delivery {
+            text-align: center;
+            margin: 10px 0 16px;
+         }
+
+         .forma .info-privacy {
+            font-size: 13px;
+            text-align: center;
+         }
+
+         .forma .info-privacy a {
+            color: #007bff;
+            text-decoration: none;
+         }
+
+         .forma button {
+            padding: 12px 20px;
+            margin: auto;
+            text-transform: uppercase;
+            display: block;
+            text-decoration: none;
+            outline: none;
+            font-weight: bold;
+            font-size: 22px;
+            color: #ffffff;
+            text-align: center;
+            background: linear-gradient(to top, #75af27, #89cf2e);
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 7px 0 #56831c;
+            cursor: pointer;
+            margin-top: 14px;
+         }
+
+         .forma button:hover {
+            background: linear-gradient(to top, #75BA27, #89D92E);
+         }
+
+         .formawrap {
+            background: white;
+            padding: 45px 15px;
+         }
+      </style>
+
+      <div class="formawrap" id="formawrap">
+         <form method="post" action="" class="forma">
+            <center>
+               <h3>
+                  <font style="vertical-align: inherit;">
+                     <font style="vertical-align: inherit;">WYPEŁNIĆ FORMULARZ</font>
+                  </font>
+               </h3>
+            </center>
+            <center>
+               <h4 style="    margin-bottom: 20px;">
+                  <font style="vertical-align: inherit;">
+                     <font style="vertical-align: inherit;">Drone XTactical (<del><x-oldprice>858</x-oldprice> <x-currency>ZŁ</x-currency></del>  <x-newprice>429</x-newprice>                        <x-currency>ZŁ</x-currency>)</font>
+                  </font>
+               </h4>
+            </center>
+                <input name="csrf_token" type="hidden" value="f0c276bbd1b30f684882b40af964644a:1612797733">
+    <select name="offer" class="form-control country_chang" style="display: none;">
+        <option data-country-code="PL" selected="selected" value="22232">
+            Польша        </option>
+    </select>
+
+                <div class="form-group">
+               <label>
+                  <font style="vertical-align: inherit;">
+                     <font style="vertical-align: inherit;">Imię i nazwisko</font>
+                  </font>
+               </label>
+               <input type="text" name="name" class="form-control" placeholder="" required="required">
+            </div>
+            <div class="form-group">
+               <label>
+                  <font style="vertical-align: inherit;">
+                     <font style="vertical-align: inherit;">Telefon kontaktowy</font>
+                  </font>
+               </label>
+               <input type="tel" name="phone" class="form-control" placeholder="" required="required">
+            </div>
+
+
+
+
+
+            <button class="submit-button" type="submit">
+               <font style="vertical-align: inherit;">
+                  <font style="vertical-align: inherit;">Zamów teraz</font>
+               </font>
+            </button>
+         </form>
+      </div>
+
+      <script src="js/jquery-3.3.1.min.js"></script>
+
+      <script src="js/fingerprint2.min.js"></script>
+      <script src="js/ekko-lightbox.min.js"></script>
+
+
+
+   </section>
+
+
+
+   <script src="js/bootstrap.min.js"></script>
+
+<center><p>OOO "OSTROV PRODAZH" OGRN: 1197746695530 VAT: 7708365555</p>
+<p>129090, Moscow, pereulok Zhivarev, house 8, stroenie 3, flat 16 email: ostrov.prodazh@mail.com Skype: ostrov.prodazh@mail.com</p> 
+
+
+    
+            <p class="conf-link doclinks">
+        <a class="nav-link" href="" onclick="window.open('/policy_en.php'); return false;">Privacy Policy</a>
+          |
+        <a class="nav-link" href="" onclick="window.open('/terms_en.php'); return false;">Terms & Conditions</a>
+      </p>
+      
+    
+</center>
+</body>
+
+</html>
